@@ -1,6 +1,11 @@
 # 🦉 Owlet
 *Part of the Bird Constellation - Local-First AI Productivity*
 
+[![CI/CD Pipeline](https://github.com/johnazariah/bird-constellation/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/johnazariah/bird-constellation/actions/workflows/ci-cd.yml)
+[![Code Coverage](https://img.shields.io/badge/coverage-check%20actions-blue)](https://github.com/johnazariah/bird-constellation/actions)
+[![.NET Version](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 ## 🌌 The Bird Constellation Vision
 
 The **Bird Constellation** is an ecosystem of specialized, interoperable services that work together to create a powerful local-first AI productivity environment. Each "bird" handles a specific domain with excellence:
