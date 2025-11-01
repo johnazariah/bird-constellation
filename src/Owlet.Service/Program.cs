@@ -21,10 +21,9 @@ public class Program
 {
     public static async Task<int> Main(string[] args)
     {
-        // Early logger for startup errors
+        // Early logger for startup errors (console only during development)
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
-            .WriteTo.EventLog("Owlet", manageEventSource: true, formatProvider: CultureInfo.InvariantCulture)
             .CreateBootstrapLogger();
 
         try
