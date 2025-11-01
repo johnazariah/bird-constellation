@@ -33,6 +33,9 @@ public class Program
             // Use WebApplication for HTTP endpoints (health checks, API)
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add Aspire service defaults (OpenTelemetry, service discovery, resilience)
+            builder.AddServiceDefaults();
+
             // Configure Windows Service integration
             builder.Host.UseWindowsService(options => 
             {
@@ -63,6 +66,9 @@ public class Program
             builder.Services.AddOwletWindowsService();
 
             var app = builder.Build();
+
+            // Configure Aspire default endpoints (/health, /alive in development)
+            app.MapDefaultEndpoints();
 
             // Configure health check HTTP endpoints
             app.UseOwletHealthChecks();

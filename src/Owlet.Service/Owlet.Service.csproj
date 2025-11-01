@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Owlet.ServiceDefaults\Owlet.ServiceDefaults.csproj" />
     <ProjectReference Include="..\Owlet.Core\Owlet.Core.csproj" />
     <ProjectReference Include="..\Owlet.Api\Owlet.Api.csproj" />
     <ProjectReference Include="..\Owlet.Infrastructure\Owlet.Infrastructure.csproj" />

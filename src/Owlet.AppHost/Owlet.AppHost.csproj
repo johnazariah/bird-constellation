@@ -12,10 +12,12 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" />
+    <PackageReference Include="Aspire.Hosting" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Owlet.ServiceDefaults\Owlet.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Owlet.Service\Owlet.Service.csproj" />
   </ItemGroup>
 
 </Project>
