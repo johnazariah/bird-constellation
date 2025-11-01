@@ -1,0 +1,15 @@
+# Act configuration for running GitHub Actions locally with Podman
+# https://github.com/nektos/act
+
+# Platform mappings (windows-latest runs on Linux container)
+-P ubuntu-latest=catthehacker/ubuntu:act-latest
+-P windows-latest=catthehacker/ubuntu:act-latest
+
+# Use gitignore
+--use-gitignore=true
+
+# Auto-detect events
+--detect-event
+
+# Verbosity (uncomment for debugging)
+# -v

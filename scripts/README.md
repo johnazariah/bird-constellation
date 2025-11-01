@@ -87,17 +87,14 @@ For exact CI simulation, use [Act](https://github.com/nektos/act):
 # Install
 winget install nektos.act
 
-# Run CI workflow
-act -W .github/workflows/ci-cd.yml
+# List workflows
+act -l
 
-# Run specific job
-act -j build-service
-
-# Run security scan
-act -W .github/workflows/security.yml
+# Run specific job (if you have Docker/Podman configured)
+act -j code-quality
 ```
 
-**Note**: Act requires Docker Desktop on Windows.
+**Note**: Act requires Docker or Podman. On Windows with Podman WSL, configuration can be complex. **Recommendation**: Use `.\run.ps1 validate` instead - it's faster, native, and more accurate for .NET projects.
 
 ## CI/CD Pipeline Simulation
 
