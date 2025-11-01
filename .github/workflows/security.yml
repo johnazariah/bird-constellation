@@ -12,6 +12,11 @@ on:
 env:
   DOTNET_VERSION: '9.0.x'
 
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
 jobs:
   dependency-scan:
     name: Dependency Vulnerability Scan
