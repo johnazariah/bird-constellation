@@ -47,7 +47,7 @@ public record LoggingConfiguration
     /// <summary>
     /// Whether to write logs to console output (useful for debugging).
     /// </summary>
-    public bool EnableConsole { get; init; } = false;
+    public bool EnableConsole { get; init; }
 
     /// <summary>
     /// Whether to write structured JSON logs for log aggregation systems.

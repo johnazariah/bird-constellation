@@ -24,7 +24,7 @@ public record NetworkConfiguration
     /// <summary>
     /// Whether to enable HTTPS (requires certificate configuration).
     /// </summary>
-    public bool EnableHttps { get; init; } = false;
+    public bool EnableHttps { get; init; }
 
     /// <summary>
     /// Path to X.509 certificate file for HTTPS (required if EnableHttps is true).
@@ -51,7 +51,7 @@ public record NetworkConfiguration
     /// <summary>
     /// Whether to enable detailed HTTP error responses (disable in production).
     /// </summary>
-    public bool EnableDetailedErrors { get; init; } = false;
+    public bool EnableDetailedErrors { get; init; }
 
     /// <summary>
     /// Whether to enable response compression (gzip/brotli).

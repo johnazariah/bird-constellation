@@ -50,7 +50,7 @@ public record ServiceConfiguration
     /// <summary>
     /// Whether the service supports pause and continue operations.
     /// </summary>
-    public bool CanPauseAndContinue { get; init; } = false;
+    public bool CanPauseAndContinue { get; init; }
 
     /// <summary>
     /// Whether the service can be stopped after starting.

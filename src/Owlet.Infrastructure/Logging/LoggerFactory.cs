@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -43,6 +44,7 @@ public static class LoggerFactory
         // File logging with rolling
         loggerConfig.WriteTo.File(
             path: Path.Combine(config.LogDirectory, "owlet-.log"),
+            formatProvider: CultureInfo.InvariantCulture,
             rollingInterval: ConvertRollingInterval(config.RollingInterval),
             retainedFileCountLimit: config.RetainedLogFiles,
             fileSizeLimitBytes: config.MaxLogFileSizeBytes,
@@ -66,11 +68,14 @@ public static class LoggerFactory
         {
             try
             {
+#pragma warning disable CA1416 // Validate platform compatibility - Owlet is Windows-only
                 loggerConfig.WriteTo.EventLog(
                     source: "Owlet Service",
                     logName: "Application",
+                    formatProvider: CultureInfo.InvariantCulture,
                     restrictedToMinimumLevel: LogEventLevel.Warning,
                     manageEventSource: false); // Must be created during installation
+#pragma warning restore CA1416
             }
             catch (Exception ex)
             {
@@ -86,6 +91,7 @@ public static class LoggerFactory
         if (config.EnableConsole)
         {
             loggerConfig.WriteTo.Console(
+                formatProvider: CultureInfo.InvariantCulture,
                 theme: AnsiConsoleTheme.Code,
                 outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}");
         }

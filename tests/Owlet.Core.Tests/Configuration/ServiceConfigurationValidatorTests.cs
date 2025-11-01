@@ -54,7 +54,8 @@ public class ServiceConfigurationValidatorTests
 
         // Assert
         result.Failed.Should().BeTrue();
-        result.Failures.Should().Contain(f => f.Contains("ServiceName"));
+        result.Failures.Should().Contain(f => f.Contains("ServiceName"))
+            .And.Contain(f => f.Contains(expectedError));
     }
 
     [Fact]
