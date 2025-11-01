@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:fire="http://wixtoolset.org/schemas/v4/wxs/firewall">
+
+  <Fragment>
+    <!-- Firewall rule components -->
+    <ComponentGroup Id="FirewallComponents" Directory="BinFolder">
+      
+      <Component Bitness="always64">
+        <!-- Inbound rule for HTTP port -->
+        <fire:FirewallException Id="OwletHttpInbound"
+                                Name="Owlet Document Service - HTTP"
+                                Description="Allow HTTP access to Owlet document indexing service"
+                                Port="[SERVICE_PORT]"
+                                Protocol="tcp"
+                                Scope="localSubnet"
+                                Profile="domain,private"
+                                IgnoreFailure="yes" />
+
+        <!-- Registry entry to track firewall configuration -->
+        <RegistryKey Root="HKLM" Key="SOFTWARE\Owlet\Firewall">
+          <RegistryValue Name="HttpPort" Value="[SERVICE_PORT]" Type="string" KeyPath="yes" />
+          <RegistryValue Name="RuleName" Value="Owlet Document Service - HTTP" Type="string" />
+        </RegistryKey>
+      </Component>
+
+    </ComponentGroup>
+
+  </Fragment>
+
+</Wix>
