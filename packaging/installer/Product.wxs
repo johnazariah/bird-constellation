@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <!-- Product definition -->
+  <Package Name="$(ProductName)"
+           Language="1033"
+           Version="$(ProductVersion)"
+           Manufacturer="$(Manufacturer)"
+           UpgradeCode="12345678-1234-1234-1234-123456789012"
+           InstallerVersion="500"
+           Compressed="yes"
+           Scope="perMachine">
+
+    <!-- Prerequisites -->
+    <Launch Condition="Installed OR (VersionNT &gt;= 1000 AND VersionNT64)"
+            Message="This application requires Windows 10 version 1809 or later (64-bit)." />
+
+    <!-- Installation properties -->
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+    <Property Id="ARPHELPLINK" Value="https://github.com/bird-constellation/owlet/wiki" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/bird-constellation/owlet" />
+    <Property Id="ARPNOREPAIR" Value="yes" />
+    <Property Id="ARPNOMODIFY" Value="yes" />
+
+    <!-- Custom properties -->
+    <Property Id="SERVICE_PORT" Value="5555" />
+    <Property Id="SERVICE_ACCOUNT" Value="LocalSystem" />
+
+    <!-- Icon definition -->
+    <Icon Id="ProductIcon" SourceFile="$(SourceDir)\Owlet.Service.exe" />
+
+    <!-- Upgrade logic -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed."
+                  Schedule="afterInstallInitialize" />
+
+    <!-- Feature tree -->
+    <Feature Id="ProductFeature"
+             Title="Owlet Service"
+             Description="Core document indexing service and API"
+             Level="1">
+
+      <ComponentGroupRef Id="ServiceComponents" />
+      <ComponentGroupRef Id="ConfigurationComponents" />
+      <ComponentGroupRef Id="FirewallComponents" />
+      <ComponentRef Id="DataDirectory" />
+      <ComponentRef Id="LogDirectory" />
+    </Feature>
+
+    <!-- Standard UI -->
+    <WixVariable Id="WixUILicenseRtf" Value="License.rtf" />
+    <UIRef Id="WixUI_Minimal" />
+
+  </Package>
+
+  <!-- Directory structure -->
+  <Fragment>
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Owlet">
+        <Directory Id="BinFolder" Name="bin" />
+        <Directory Id="ConfigFolder" Name="config" />
+      </Directory>
+    </StandardDirectory>
+
+    <StandardDirectory Id="CommonAppData64Folder">
+      <Directory Id="CompanyDataFolder" Name="Owlet">
+        <Directory Id="DataFolder" Name="Data" />
+        <Directory Id="LogsFolder" Name="Logs" />
+      </Directory>
+    </StandardDirectory>
+  </Fragment>
+
+  <!-- Data and log directories -->
+  <Fragment>
+    <Component Id="DataDirectory" Directory="DataFolder" Bitness="always64">
+      <CreateFolder>
+        <util:PermissionEx User="NT AUTHORITY\SYSTEM" GenericAll="yes" />
+        <util:PermissionEx User="BUILTIN\Administrators" GenericAll="yes" />
+      </CreateFolder>
+    </Component>
+
+    <Component Id="LogDirectory" Directory="LogsFolder" Bitness="always64">
+      <CreateFolder>
+        <util:PermissionEx User="NT AUTHORITY\SYSTEM" GenericAll="yes" />
+        <util:PermissionEx User="BUILTIN\Administrators" GenericAll="yes" />
+      </CreateFolder>
+    </Component>
+  </Fragment>
+
+</Wix>

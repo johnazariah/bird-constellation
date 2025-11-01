@@ -1,0 +1,30 @@
+<Project Sdk="WixToolset.Sdk/4.0.4">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <OutputType>Package</OutputType>
+    <PlatformTarget>x64</PlatformTarget>
+    <OutputName>OwletInstaller</OutputName>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Default values - can be overridden by build -->
+    <ProductVersion Condition="'$(ProductVersion)' == ''">1.0.0</ProductVersion>
+    <SourceDir Condition="'$(SourceDir)' == ''">..\..\artifacts\service-package</SourceDir>
+    <ProductName>Owlet Document Indexing Service</ProductName>
+    <Manufacturer>Owlet</Manufacturer>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WixToolset.UI.wixext" />
+    <PackageReference Include="WixToolset.Util.wixext" />
+    <PackageReference Include="WixToolset.Firewall.wixext" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="Product.wxs" />
+    <Compile Include="Service.wxs" />
+    <Compile Include="Firewall.wxs" />
+  </ItemGroup>
+
+</Project>

@@ -1,7 +1,27 @@
 # 🦉 Owlet
-*The Librarian - "Knows everything you keep"*
+*Part of the Bird Constellation - Local-First AI Productivity*
 
-Owlet is a production-ready, local-first document indexing and search application designed for seamless installation and operation on Windows machines. It runs as a Windows service with an embedded web UI, providing file discovery, content extraction, and semantic search capabilities while serving as the foundational knowledge layer for the Owlet Constellation ecosystem.
+[![CI/CD Pipeline](https://github.com/johnazariah/bird-constellation/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/johnazariah/bird-constellation/actions/workflows/ci-cd.yml)
+[![Code Coverage](https://img.shields.io/badge/coverage-check%20actions-blue)](https://github.com/johnazariah/bird-constellation/actions)
+[![.NET Version](https://img.shields.io/badge/.NET-9.0-512BD4)](https://dotnet.microsoft.com/download/dotnet/9.0)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+## 🌌 The Bird Constellation Vision
+
+The **Bird Constellation** is an ecosystem of specialized, interoperable services that work together to create a powerful local-first AI productivity environment. Each "bird" handles a specific domain with excellence:
+
+- **🦉 Owlet** *(This Repository)* - The Librarian: Document indexing, search, and knowledge foundation
+- **💡 Lumen** - The Illuminator: AI-powered insights, analysis, and question answering
+- **🦢 Cygnet** - The Orchestrator: Workflow automation and document processing pipelines
+- **🕊️ Dove** - The Messenger: Cross-service communication and event streaming
+
+All services share common principles: **local-first architecture**, **privacy-preserving AI**, **simple installation**, and **constellation protocol** for seamless integration.
+
+---
+
+## About Owlet
+
+Owlet is a production-ready, local-first document indexing and search application designed for seamless installation and operation on Windows machines. It runs as a Windows service with an embedded web UI, providing file discovery, content extraction, and semantic search capabilities while serving as the foundational knowledge layer for the entire Bird Constellation ecosystem.
 
 ## 🚀 Quick Start
 
@@ -167,23 +187,26 @@ dotnet publish src/Owlet.Service --configuration Release --self-contained --runt
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🌟 Future Vision
+## 🌟 Constellation Integration
 
-Owlet serves as the knowledge foundation for the **Owlet Constellation** ecosystem:
-- **Lumen**: AI-powered document analysis and insights
-- **Cygnet**: Workflow automation and document processing
-- **Constellation Protocol**: Service discovery and event streaming
+Owlet is designed as the foundation service for the Bird Constellation. Other services discover and connect to Owlet through the **Constellation Protocol**:
 
-Each service builds upon Owlet's indexing and search capabilities, creating a powerful local-first productivity ecosystem.
+- **Service Discovery**: Automatic detection of Owlet instance on local network
+- **Event Streaming**: Real-time notifications of indexing and search events (`/api/events`)
+- **Capability Negotiation**: Dynamic feature discovery (`/constellation/capabilities`)
+- **Shared Knowledge**: All constellation services query Owlet for document knowledge
+
+Future constellation services (Lumen, Cygnet, Dove) will build upon Owlet's indexing and search capabilities, creating a cohesive local-first AI productivity ecosystem.
 
 ---
 
 ## 📞 Support & Community
 
+- **Constellation Repository**: [bird-constellation](https://github.com/yourusername/bird-constellation)
 - **Issues**: [GitHub Issues](https://github.com/yourusername/owlet/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/yourusername/owlet/discussions)
 - **Documentation**: [Project Wiki](https://github.com/yourusername/owlet/wiki)
 
 ---
 
-*Built with ❤️ for the local-first community*
+*Part of the Bird Constellation - Built with ❤️ for local-first AI productivity*

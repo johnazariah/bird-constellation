@@ -13,6 +13,7 @@ This directory contains the architecture decision records for the Owlet project.
 | [ADR-005](005-phased-implementation-approach.md) | Phased Implementation Strategy | Accepted | 2025-11-01 |
 | [ADR-006](006-ci-cd-pipeline-architecture.md) | CI/CD Pipeline and Testing Strategy | Accepted | 2025-11-01 |
 | [ADR-007](007-pure-service-installation.md) | Pure Windows Service for End-User Installation | Accepted | 2025-11-01 |
+| [ADR-008](008-index-deletion-policy.md) | Index Deletion Policy | Accepted | 2025-11-01 |
 
 ## ADR Template
 

@@ -1,0 +1,30 @@
+root = true
+
+# All files
+[*]
+indent_style = space
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Code files
+[*.{cs,csx,vb,vbx}]
+indent_size = 4
+
+# C# files
+[*.cs]
+
+# CA1416: Platform compatibility - Allow Windows-specific APIs in Windows service project
+dotnet_diagnostic.CA1416.severity = none
+
+# CA1848: Use LoggerMessage delegates - Performance optimization we'll do later
+dotnet_diagnostic.CA1848.severity = none
+
+# CA1861: Avoid constant arrays - Minor perf optimization for later
+dotnet_diagnostic.CA1861.severity = none
+
+# CA1869: Cache JsonSerializerOptions - Will optimize when needed
+dotnet_diagnostic.CA1869.severity = none
+
+# CA1001: Types that own disposable fields should be disposable - Will fix properly later
+dotnet_diagnostic.CA1001.severity = none

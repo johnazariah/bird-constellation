@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+
+  <Fragment>
+    <!-- Service executable components -->
+    <ComponentGroup Id="ServiceComponents" Directory="BinFolder">
+      
+      <Component Bitness="always64">
+        <File Source="$(SourceDir)\Owlet.Service.exe" KeyPath="yes" Checksum="yes" />
+        
+        <!-- Service registration -->
+        <ServiceInstall Id="OwletServiceInstall"
+                        Type="ownProcess"
+                        Name="OwletService"
+                        DisplayName="Owlet Document Indexing Service"
+                        Description="Indexes and searches local documents for fast retrieval"
+                        Start="auto"
+                        Account="[SERVICE_ACCOUNT]"
+                        ErrorControl="normal"
+                        Interactive="no" />
+
+        <!-- Service control -->
+        <ServiceControl Id="OwletServiceControl"
+                        Name="OwletService"
+                        Start="install"
+                        Stop="both"
+                        Remove="uninstall"
+                        Wait="yes" />
+
+        <!-- Service failure recovery -->
+        <util:ServiceConfig ServiceName="OwletService"
+                            FirstFailureActionType="restart"
+                            SecondFailureActionType="restart"
+                            ThirdFailureActionType="restart"
+                            RestartServiceDelayInSeconds="60" />
+
+        <!-- Event log source registration -->
+        <util:EventSource Log="Application"
+                          Name="Owlet Service"
+                          EventMessageFile="[BinFolder]Owlet.Service.exe" />
+      </Component>
+
+      <!-- Service dependencies (stub - will be populated by build) -->
+      <Component Bitness="always64">
+        <File Source="$(SourceDir)\Owlet.Core.dll" />
+      </Component>
+
+      <Component Bitness="always64">
+        <File Source="$(SourceDir)\Owlet.Api.dll" />
+      </Component>
+
+      <Component Bitness="always64">
+        <File Source="$(SourceDir)\Owlet.Infrastructure.dll" />
+      </Component>
+
+    </ComponentGroup>
+
+    <!-- Configuration files -->
+    <ComponentGroup Id="ConfigurationComponents" Directory="ConfigFolder">
+      
+      <Component Bitness="always64">
+        <File Source="$(SourceDir)\appsettings.json" KeyPath="yes" />
+      </Component>
+
+      <Component Bitness="always64">
+        <File Source="$(SourceDir)\appsettings.Production.json" />
+      </Component>
+
+    </ComponentGroup>
+
+  </Fragment>
+
+</Wix>

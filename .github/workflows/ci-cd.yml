@@ -1,0 +1,295 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/** ]
+  pull_request:
+    branches: [ main, develop ]
+  release:
+    types: [ published ]
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  SOLUTION_PATH: './Owlet.sln'
+  SERVICE_PROJECT_PATH: './src/Owlet.Service/Owlet.Service.csproj'
+  ASPIRE_PROJECT_PATH: './src/Owlet.AppHost/Owlet.AppHost.csproj'
+  ARTIFACTS_PATH: './artifacts'
+
+jobs:
+  # ===== VALIDATION JOBS =====
+  code-quality:
+    name: Code Quality Analysis
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Full history for analysis
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Build solution
+      run: dotnet build ${{ env.SOLUTION_PATH }} --no-restore --configuration Release
+
+    - name: Run code analysis
+      run: dotnet build ${{ env.SOLUTION_PATH }} --configuration Release --no-restore --verbosity normal
+
+  # ===== TESTING JOBS =====
+  unit-tests:
+    name: Unit Tests
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        test-project:
+          - 'tests/Owlet.Core.Tests'
+          - 'tests/Owlet.Api.Tests'
+          - 'tests/Owlet.Infrastructure.Tests'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Set artifact name
+      shell: pwsh
+      run: |
+        $projectName = "${{ matrix.test-project }}" -replace '[/\\]', '-'
+        echo "ARTIFACT_NAME=$projectName" >> $env:GITHUB_ENV
+
+    - name: Run unit tests
+      run: |
+        dotnet test ${{ matrix.test-project }} `
+          --configuration Release `
+          --no-restore `
+          --logger trx `
+          --logger "console;verbosity=detailed" `
+          --collect:"XPlat Code Coverage" `
+          --results-directory TestResults `
+          -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ env.ARTIFACT_NAME }}
+        path: TestResults/*.trx
+        retention-days: 30
+
+    - name: Upload code coverage
+      uses: actions/upload-artifact@v4
+      with:
+        name: code-coverage-${{ env.ARTIFACT_NAME }}
+        path: TestResults/*/coverage.opencover.xml
+        retention-days: 30
+
+  # ===== BUILD JOBS =====
+  build-service:
+    name: Build Windows Service
+    runs-on: windows-latest
+    needs: [code-quality, unit-tests]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Set version variables
+      run: |
+        $version = "1.0.0"
+        if ($env:GITHUB_REF -match "refs/tags/v(.+)") {
+          $version = $matches[1]
+        } elseif ($env:GITHUB_REF -eq "refs/heads/main") {
+          $version = "1.0.0-main.$env:GITHUB_RUN_NUMBER"
+        } else {
+          $branchName = $env:GITHUB_REF -replace "refs/heads/", "" -replace "[^a-zA-Z0-9-]", "-"
+          $version = "1.0.0-$branchName.$env:GITHUB_RUN_NUMBER"
+        }
+        echo "VERSION=$version" >> $env:GITHUB_ENV
+        echo "Building version: $version"
+
+    - name: Build Windows Service (Release)
+      run: |
+        dotnet publish ${{ env.SERVICE_PROJECT_PATH }} `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained true `
+          --output ${{ env.ARTIFACTS_PATH }}/service `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:PublishTrimmed=false `
+          -p:Version=${{ env.VERSION }} `
+          -p:AssemblyVersion=1.0.0.${{ github.run_number }} `
+          -p:FileVersion=1.0.0.${{ github.run_number }} `
+          -p:InformationalVersion=${{ env.VERSION }}
+
+    - name: Create service package structure
+      run: |
+        $packagePath = "${{ env.ARTIFACTS_PATH }}/service-package"
+        New-Item -ItemType Directory -Force -Path $packagePath
+
+        # Copy service executable and dependencies
+        Copy-Item "${{ env.ARTIFACTS_PATH }}/service/*" -Destination $packagePath -Recurse
+
+        # Copy configuration files
+        Copy-Item "src/Owlet.Service/appsettings.json" -Destination $packagePath
+        Copy-Item "src/Owlet.Service/appsettings.Production.json" -Destination $packagePath
+
+        # Create installation scripts
+        @"
+        @echo off
+        echo Installing Owlet Service...
+        sc create OwletService binPath= "%~dp0Owlet.Service.exe" start= auto
+        sc description OwletService "Owlet Document Indexing Service"
+        echo Service installed. Starting service...
+        sc start OwletService
+        echo Installation complete.
+        "@ | Out-File -FilePath "$packagePath/install.bat" -Encoding ASCII
+
+        @"
+        @echo off
+        echo Stopping Owlet Service...
+        sc stop OwletService
+        echo Uninstalling Owlet Service...
+        sc delete OwletService
+        echo Uninstallation complete.
+        "@ | Out-File -FilePath "$packagePath/uninstall.bat" -Encoding ASCII
+
+    - name: Upload service artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: owlet-service-${{ env.VERSION }}
+        path: ${{ env.ARTIFACTS_PATH }}/service-package/
+        retention-days: 90
+
+  build-aspire:
+    name: Build Aspire Development Host
+    runs-on: windows-latest
+    needs: [code-quality, unit-tests]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/Directory.Packages.props') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.SOLUTION_PATH }}
+
+    - name: Set version variables
+      run: |
+        $version = "1.0.0"
+        if ($env:GITHUB_REF -match "refs/tags/v(.+)") {
+          $version = $matches[1]
+        } elseif ($env:GITHUB_REF -eq "refs/heads/main") {
+          $version = "1.0.0-main.$env:GITHUB_RUN_NUMBER"
+        } else {
+          $branchName = $env:GITHUB_REF -replace "refs/heads/", "" -replace "[^a-zA-Z0-9-]", "-"
+          $version = "1.0.0-$branchName.$env:GITHUB_RUN_NUMBER"
+        }
+        echo "VERSION=$version" >> $env:GITHUB_ENV
+
+    - name: Build Aspire Host
+      run: |
+        dotnet publish ${{ env.ASPIRE_PROJECT_PATH }} `
+          --configuration Release `
+          --output ${{ env.ARTIFACTS_PATH }}/aspire `
+          -p:Version=${{ env.VERSION }} `
+          -p:AssemblyVersion=1.0.0.${{ github.run_number }} `
+          -p:FileVersion=1.0.0.${{ github.run_number }} `
+          -p:InformationalVersion=${{ env.VERSION }}
+
+    - name: Upload Aspire artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: owlet-aspire-${{ env.VERSION }}
+        path: ${{ env.ARTIFACTS_PATH }}/aspire/
+        retention-days: 30
+
+  # ===== SUMMARY JOB =====
+  build-summary:
+    name: Build Summary
+    runs-on: windows-latest
+    needs: [build-service, build-aspire]
+    if: always()
+
+    steps:
+    - name: Determine build status
+      run: |
+        $serviceStatus = "${{ needs.build-service.result }}"
+        $aspireStatus = "${{ needs.build-aspire.result }}"
+
+        if ($serviceStatus -eq "success" -and $aspireStatus -eq "success") {
+          echo "BUILD_STATUS=success" >> $env:GITHUB_ENV
+          Write-Host "✅ All builds completed successfully" -ForegroundColor Green
+        } elseif ($serviceStatus -eq "failure" -or $aspireStatus -eq "failure") {
+          echo "BUILD_STATUS=failure" >> $env:GITHUB_ENV
+          Write-Host "❌ Build failed" -ForegroundColor Red
+          exit 1
+        } else {
+          echo "BUILD_STATUS=cancelled" >> $env:GITHUB_ENV
+          Write-Host "⚠️ Build cancelled" -ForegroundColor Yellow
+        }
+
+    - name: Build summary
+      run: |
+        Write-Host ""
+        Write-Host "Build Summary:" -ForegroundColor Cyan
+        Write-Host "  Service: ${{ needs.build-service.result }}" -ForegroundColor $(if ("${{ needs.build-service.result }}" -eq "success") { "Green" } else { "Red" })
+        Write-Host "  Aspire:  ${{ needs.build-aspire.result }}" -ForegroundColor $(if ("${{ needs.build-aspire.result }}" -eq "success") { "Green" } else { "Red" })
+        Write-Host ""
