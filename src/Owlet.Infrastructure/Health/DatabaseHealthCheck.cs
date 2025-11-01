@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using Owlet.Core.Results;
-using Owlet.Infrastructure.Data;
+using Owlet.Infrastructure.Database;
 
 namespace Owlet.Infrastructure.Health;
 
