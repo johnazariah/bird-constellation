@@ -19,7 +19,7 @@
         "epicPrefix": "E",
         "storyPrefix": "S",
         "taskPrefix": "T",
-        "numberingGap": 1,
+        "numberingGap": 10,
         "epicFormat": "E{number:D2}-{name-kebab-case}",
         "storyFormat": "S{number:D2}-{name-kebab-case}",
         "taskFormat": "T{number:D2}-{name-kebab-case}",

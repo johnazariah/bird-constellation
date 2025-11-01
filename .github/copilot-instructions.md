@@ -89,6 +89,13 @@ Owlet.sln
 - **Configuration**: Strongly-typed configuration with validation
 - **Testing**: Follow established patterns in existing tests
 
+### Implementation Guidelines
+- **Extension Methods**: If referenced but not found (`ConfigureForAspire`, `AddOwletCore`, etc.), create in `Owlet.ServiceDefaults` as thin wrapper over ASP.NET Core registration
+- **Database Choice**: Always prefer SQLite unless explicit environment variable selects PostgreSQL
+- **Reactive Processing**: If event-stream processing too complex for single task, implement simpler BackgroundService first
+- **WiX Installer**: Generate stub components instead of packaging actual model files
+- **API Routes**: DO NOT change established routes: `/api/search`, `/api/folders`, `/api/files`, `/health`, `/events`, `/tags`
+
 ### Documentation Maintenance
 - Update ADRs for significant architectural decisions
 - Keep API documentation current with OpenAPI
