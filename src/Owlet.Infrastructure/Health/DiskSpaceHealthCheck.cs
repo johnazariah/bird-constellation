@@ -11,7 +11,6 @@ namespace Owlet.Infrastructure.Health;
 /// </summary>
 public sealed class DiskSpaceHealthCheck : IHealthCheck
 {
-    private readonly ServiceConfiguration _configuration;
     private readonly ILogger<DiskSpaceHealthCheck> _logger;
 
     // Disk space thresholds from performance-resource-planning.md
@@ -19,11 +18,12 @@ public sealed class DiskSpaceHealthCheck : IHealthCheck
     private const double DegradedFreePercentThreshold = 15.0; // < 15% is degraded
     private const long MinimumFreeSpaceGB = 1; // At least 1 GB free
 
-    public DiskSpaceHealthCheck(
-        IOptions<ServiceConfiguration> configuration,
-        ILogger<DiskSpaceHealthCheck> logger)
+    // TODO: Replace with StorageConfiguration in E20
+    private static readonly string DataDirectory = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Owlet", "data");
+
+    public DiskSpaceHealthCheck(ILogger<DiskSpaceHealthCheck> logger)
     {
-        _configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -34,14 +34,13 @@ public sealed class DiskSpaceHealthCheck : IHealthCheck
         try
         {
             // Get disk info for the data directory drive
-            var dataDirectoryPath = _configuration.DataDirectory;
-            var driveInfo = GetDriveInfo(dataDirectoryPath);
+            var driveInfo = GetDriveInfo(DataDirectory);
 
             if (driveInfo == null)
             {
                 return Task.FromResult(
                     HealthCheckResult.Degraded(
-                        $"Could not determine drive information for path: {dataDirectoryPath}"));
+                        $"Could not determine drive information for path: {DataDirectory}"));
             }
 
             var totalGB = Math.Round(driveInfo.TotalSize / (1024.0 * 1024.0 * 1024.0), 2);

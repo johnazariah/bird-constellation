@@ -1,10 +1,13 @@
 ﻿using System.Globalization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.WindowsServices;
 using Microsoft.Extensions.Options;
 using Owlet.Core.Configuration;
 using Owlet.Core.Extensions;
 using Owlet.Core.Logging;
+using Owlet.Infrastructure.Health;
 using Owlet.Infrastructure.Logging;
 using Owlet.Service.Extensions;
 using Serilog;
@@ -28,7 +31,14 @@ public class Program
         {
             Log.Information("Starting Owlet service host");
 
-            var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(args);
+            // Use WebApplication for HTTP endpoints (health checks, API)
+            var builder = WebApplication.CreateBuilder(args);
+
+            // Configure Windows Service integration
+            builder.Host.UseWindowsService(options => 
+            {
+                options.ServiceName = "OwletService";
+            });
 
             // Add logging context
             builder.Services.AddSingleton<ILoggingContext, LoggingContext>();
@@ -47,19 +57,20 @@ public class Program
             // Add error handling
             builder.Services.AddOwletErrorHandling();
 
-            // Add health checks
-            builder.Services.AddHealthChecks()
-                .AddOwletHealthChecks();
+            // Add comprehensive health checks
+            builder.Services.AddOwletHealthChecks();
 
-            // Add the Windows service host
+            // Add the Windows service background worker
             builder.Services.AddOwletWindowsService();
 
-            IHost host = builder.Build();
+            var app = builder.Build();
+
+            // Configure health check HTTP endpoints
+            app.UseOwletHealthChecks();
 
             Log.Information("Service host configured, starting application");
 
-            await host.StartAsync();
-            await host.WaitForShutdownAsync();
+            await app.RunAsync();
 
             Log.Information("Service host stopped normally");
             return 0;

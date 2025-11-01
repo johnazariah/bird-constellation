@@ -14,17 +14,20 @@ namespace Owlet.Infrastructure.Health;
 /// </summary>
 public sealed class FileSystemHealthCheck : IHealthCheck
 {
-    private readonly ServiceConfiguration _configuration;
     private readonly ILogger<FileSystemHealthCheck> _logger;
 
     // Performance thresholds
     private const long SlowFileAccessMs = 1000; // 1 second is concerning
 
-    public FileSystemHealthCheck(
-        IOptions<ServiceConfiguration> configuration,
-        ILogger<FileSystemHealthCheck> logger)
+    // TODO: Replace with StorageConfiguration in E20
+    private static readonly string DataDirectory = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Owlet", "data");
+    private static readonly string LogDirectory = Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "Owlet", "logs");
+    private static readonly string TempDirectory = Path.Combine(Path.GetTempPath(), "Owlet");
+
+    public FileSystemHealthCheck(ILogger<FileSystemHealthCheck> logger)
     {
-        _configuration = configuration?.Value ?? throw new ArgumentNullException(nameof(configuration));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -39,7 +42,7 @@ public sealed class FileSystemHealthCheck : IHealthCheck
 
             // Check data directory access (CRITICAL)
             var dataResult = await CheckDirectoryAccess(
-                _configuration.DataDirectory,
+                DataDirectory,
                 "data",
                 cancellationToken);
 
@@ -59,7 +62,7 @@ public sealed class FileSystemHealthCheck : IHealthCheck
 
             // Check log directory access (DEGRADED if fails)
             var logResult = await CheckDirectoryAccess(
-                _configuration.LogDirectory,
+                LogDirectory,
                 "log",
                 cancellationToken);
 
@@ -79,7 +82,7 @@ public sealed class FileSystemHealthCheck : IHealthCheck
 
             // Check temporary directory access (DEGRADED if fails)
             var tempResult = await CheckDirectoryAccess(
-                _configuration.TempDirectory,
+                TempDirectory,
                 "temp",
                 cancellationToken);
 
