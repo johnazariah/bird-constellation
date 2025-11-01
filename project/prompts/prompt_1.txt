@@ -1,0 +1,24 @@
+Create a new Aspire-based .NET 9 solution called `Owlet`.
+
+Projects:
+1. `Owlet.Api` (ASP.NET Core minimal API + simple Razor page)
+   - GET `/` → show HTML search page
+   - GET `/search?q=...` → return JSON list of files
+   - GET `/folders` → list watched folders
+   - POST `/folders` → { "path": "C:\\Users\\me\\Documents" }
+2. `Owlet.Indexer` (Generic Host project)
+   - Hosted service that:
+     - loads watched folders (from Owlet.Api via HTTP or shared library)
+     - watches for file changes
+     - on change, calls extractors and writes to index
+3. `Owlet.Extractors` (class lib)
+   - interfaces: `ITextExtractor`, `IImageExtractor`
+   - implementations: Txt, Markdown, Pdf (stub), Image metadata
+4. Use SQLite (via EF Core or direct) to store a table `Files`:
+   - Id, Path, Name, Extension, Kind (doc|image|other), Content (nullable), Tags (nullable), ModifiedAt
+
+User flow:
+- Run Owlet.AppHost → starts Api + Indexer
+- Open http://localhost:5001 → add folders → search
+
+Keep code clean and well-commented so a non-nerd can follow the Api project.

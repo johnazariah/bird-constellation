@@ -1,0 +1,91 @@
+{
+    "$schema": "https://json-schema.org/draft-07/schema#",
+    "title": "Project Planning Parameters",
+    "description": "Configuration parameters for analysis-to-epics, epic-to-stories, and story-to-tasks prompts",
+    "project": {
+        "name": "Owlet",
+        "description": "Knows everything you keep.",
+        "type": "windows-service",
+        "repository": "bird-constellation"
+    },
+    "paths": {
+        "analysis": "project/spec",
+        "plan": "project/plan/",
+        "instructions": ".github/copilot-instructions.md",
+        "sourceCode": "src/",
+        "tests": "tests/"
+    },
+    "naming": {
+        "epicPrefix": "E",
+        "storyPrefix": "S",
+        "taskPrefix": "T",
+        "numberingGap": 1,
+        "epicFormat": "E{number:D2}-{name-kebab-case}",
+        "storyFormat": "S{number:D2}-{name-kebab-case}",
+        "taskFormat": "T{number:D2}-{name-kebab-case}",
+        "exampleEpic": "E10-billing-subscriptions",
+        "exampleStory": "S40-infrastructure-layer",
+        "exampleTask": "T20-repository-pattern"
+    },
+    "technology": {
+        "primaryLanguage": "C# 13",
+        "framework": "ASP.NET Core 8",
+        "architecture": "Clean Architecture with CQRS",
+        "database": "PostgreSQL",
+        "cache": "Redis",
+        "messageBroker": "RabbitMQ",
+        "cloudProvider": "Azure",
+        "containerization": "Docker + Kubernetes"
+    },
+    "patterns": {
+        "errorHandling": "Result<T> monad",
+        "paradigm": "Functional Programming (immutability, pure functions, monadic composition)",
+        "domainModeling": "C# records with factory methods",
+        "persistence": "Entity Framework Core with Repository pattern",
+        "mediator": "MediatR for CQRS",
+        "validation": "FluentValidation",
+        "mapping": "AutoMapper",
+        "testing": "xUnit, FluentAssertions, NSubstitute, Testcontainers"
+    },
+    "namespace": {
+        "root": "Owlet",
+        "domainSuffix": ".Domain",
+        "infrastructureSuffix": ".Infrastructure",
+        "applicationSuffix": ".Application",
+        "apiSuffix": ".API",
+        "testsSuffix": ".Tests",
+        "example": "Owlet.Billing.Domain"
+    },
+    "taskBreakdown": {
+        "lineThreshold": 1000,
+        "description": "Stories exceeding this line count should be broken into tasks",
+        "gapAnalysisAlwaysBreakdown": true,
+        "taskEffortRange": "6-16h",
+        "tasksPerStory": "3-8"
+    },
+    "testingStandards": {
+        "unitCoverageMin": 80,
+        "integrationCoverageMin": 85,
+        "testingFrameworks": [
+            "xUnit",
+            "FluentAssertions",
+            "NSubstitute",
+            "Testcontainers"
+        ],
+        "testNamingPattern": "Should_ExpectedBehavior_When_Condition"
+    },
+    "commitConventions": {
+        "enabled": true,
+        "types": [
+            "feat",
+            "fix",
+            "docs",
+            "refactor",
+            "test",
+            "chore"
+        ],
+        "epicFormat": "feat: E{number} {EpicName} epic created",
+        "storyFormat": "feat: E{epicNumber} S{storyNumber} {StoryName} story ({lines} lines)",
+        "taskFormat": "feat: E{epicNumber} S{storyNumber} task breakdown - Part {part} (T{taskNumbers})"
+    }
+}
