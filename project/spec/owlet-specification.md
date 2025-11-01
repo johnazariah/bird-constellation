@@ -723,6 +723,141 @@ public abstract record FileProcessingResult
 }
 ```
 
+#### Index Deletion Policy (ADR-008)
+
+Owlet implements a **three-tier deletion policy** to balance responsiveness, resilience, and safety:
+
+**Tier 1: Event-Driven Hard Delete (Default)**
+```csharp
+// FileSystemWatcher event handler
+private async Task HandleDeletedAsync(string path, CancellationToken ct)
+{
+    await _index.DeleteByPathAsync(path, ct);
+    _logger.LogInformation("Removed {Path} from index (filesystem delete)", path);
+}
+
+private async Task HandleRenamedAsync(RenamedEventArgs e, CancellationToken ct)
+{
+    // Treat rename as delete old + add new
+    await _index.DeleteByPathAsync(e.OldFullPath, ct);
+    await ProcessFileAsync(e.FullPath, ct);
+    _logger.LogInformation("Renamed {OldPath} to {NewPath}", e.OldFullPath, e.FullPath);
+}
+```
+
+**Tier 2: Soft Delete (Tombstone) for Missed Events**
+```csharp
+// Mark files as missing instead of hard delete during reconciliation
+public async Task MarkAsMissingAsync(string path, CancellationToken ct)
+{
+    var file = await _context.IndexedFiles
+        .FirstOrDefaultAsync(f => f.Path == path, ct);
+    
+    if (file is not null && !file.IsMissing)
+    {
+        file.IsMissing = true;
+        file.MissingSince = DateTimeOffset.UtcNow;
+        await _context.SaveChangesAsync(ct);
+        _logger.LogWarning("Marked {Path} as missing", path);
+    }
+}
+
+// Exclude missing files from search by default
+var searchQuery = _context.IndexedFiles
+    .Where(f => !f.IsMissing || includeMissing);
+```
+
+**Tier 3: Periodic Reconciliation (Safety Net)**
+```csharp
+public class IndexReconciler : BackgroundService
+{
+    private readonly IOwletIndex _index;
+    private readonly IConfiguration _configuration;
+    private readonly ILogger<IndexReconciler> _logger;
+
+    protected override async Task ExecuteAsync(CancellationToken ct)
+    {
+        var intervalHours = _configuration.GetValue("Owlet:Index:ReconcileIntervalHours", 6);
+        var retentionDays = _configuration.GetValue("Owlet:Index:MissingRetentionDays", 7);
+        
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                await ReconcileIndexAsync(retentionDays, ct);
+                _logger.LogInformation("Index reconciliation completed");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Index reconciliation failed");
+            }
+            
+            await Task.Delay(TimeSpan.FromHours(intervalHours), ct);
+        }
+    }
+
+    private async Task ReconcileIndexAsync(int retentionDays, CancellationToken ct)
+    {
+        var allFiles = await _index.GetAllFilesAsync(ct);
+        var cutoffDate = DateTimeOffset.UtcNow.AddDays(-retentionDays);
+        
+        foreach (var file in allFiles)
+        {
+            if (!File.Exists(file.Path))
+            {
+                if (file.IsMissing && file.MissingSince < cutoffDate)
+                {
+                    // Hard delete after retention period
+                    await _index.DeleteAsync(file.Id, ct);
+                    _logger.LogInformation("Purged {Path} (missing > {Days} days)", 
+                        file.Path, retentionDays);
+                }
+                else if (!file.IsMissing)
+                {
+                    // Mark as missing
+                    await _index.MarkAsMissingAsync(file.Path, ct);
+                }
+            }
+        }
+    }
+}
+```
+
+**Updated Index Interface**
+```csharp
+public interface IOwletIndex
+{
+    Task UpsertAsync(OwletItem item, CancellationToken ct = default);
+    Task<IReadOnlyList<OwletItem>> SearchAsync(SearchQuery query, CancellationToken ct = default);
+    Task<OwletItem?> GetByIdAsync(string id, CancellationToken ct = default);
+    Task<IReadOnlyList<OwletItem>> GetAllFilesAsync(CancellationToken ct = default);
+    
+    // Deletion methods (ADR-008)
+    Task DeleteAsync(string id, CancellationToken ct = default);
+    Task DeleteByPathAsync(string path, CancellationToken ct = default);
+    Task MarkAsMissingAsync(string path, CancellationToken ct = default);
+}
+```
+
+**Configuration**
+```json
+{
+  "Owlet": {
+    "Index": {
+      "MissingRetentionDays": 7,
+      "ReconcileIntervalHours": 6
+    }
+  }
+}
+```
+
+**Implementation Notes**:
+- Event-driven deletes keep index current and match user expectations
+- Soft deletes provide resilience for network drives and sync folders
+- Reconciliation provides safety net for missed events
+- Files marked missing are excluded from search unless `includeMissing: true`
+- Future enhancement: API to recover soft-deleted files when they reappear
+
 ### 5. Owlet.Infrastructure (External Concerns)
 **Purpose**: Data access, logging, and external service integration
 
@@ -1040,7 +1175,9 @@ CREATE TABLE IndexedFiles (
     ModifiedAt DATETIME NOT NULL,
     IndexedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     IsReadable BOOLEAN NOT NULL DEFAULT 1,
-    ErrorMessage TEXT NULL -- For unreadable files
+    ErrorMessage TEXT NULL, -- For unreadable files
+    IsMissing BOOLEAN NOT NULL DEFAULT 0, -- Soft delete flag (ADR-008)
+    MissingSince DATETIME NULL -- When file was marked missing (ADR-008)
 );
 
 -- Events for constellation integration
@@ -1059,6 +1196,7 @@ CREATE INDEX IX_IndexedFiles_Extension ON IndexedFiles(Extension);
 CREATE INDEX IX_IndexedFiles_ModifiedAt ON IndexedFiles(ModifiedAt);
 CREATE INDEX IX_IndexedFiles_Name ON IndexedFiles(Name);
 CREATE INDEX IX_IndexedFiles_IsReadable ON IndexedFiles(IsReadable);
+CREATE INDEX IX_IndexedFiles_IsMissing ON IndexedFiles(IsMissing); -- ADR-008
 CREATE INDEX IX_Events_CreatedAt ON Events(CreatedAt);
 CREATE INDEX IX_Events_EventType ON Events(EventType);
 
