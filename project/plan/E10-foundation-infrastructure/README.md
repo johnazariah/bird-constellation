@@ -92,7 +92,11 @@ The foundation includes the complete build and packaging infrastructure, from so
 - **Build Time:** < 5 minutes for full CI/CD pipeline
 - **Installation Time:** < 2 minutes from download to working service
 - **Service Startup:** < 30 seconds from service start to healthy
-- **Memory Footprint:** < 50MB for base service (no indexing)
+- **Memory Footprint (idle):** < 200MB for base service (no active indexing)
+- **CPU Usage (idle):** < 5% during normal operation
+- **Search Response Time:** < 500ms for 95th percentile
+
+**Note:** See [Performance & Resource Planning](../../spec/performance-resource-planning.md) for comprehensive analysis of resource usage patterns, optimization strategies, and performance envelopes across different operational modes.
 
 ### Security Considerations
 - **Service Account:** LocalSystem with minimal required privileges

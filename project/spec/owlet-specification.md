@@ -5,6 +5,9 @@
 
 Owlet is a production-ready, local-first document indexing and search application designed for seamless installation and operation on Windows machines. It runs as a Windows service with an embedded web UI, providing file discovery, content extraction, and semantic search capabilities while serving as the foundational knowledge layer for the Owlet Constellation ecosystem.
 
+**Related Documentation:**
+- 📊 [Performance & Resource Planning](performance-resource-planning.md) - Detailed resource usage analysis, optimization strategies, and performance targets
+
 ## Deployment Architecture
 
 ### Why Aspire + Windows Service = Optimal Approach
@@ -971,6 +974,7 @@ public static class ConfigurationSources
   },
   "Indexing": {
     "MaxFileSizeMB": 100,
+    "MaxTextSizeKB": 200,
     "SupportedExtensions": [
       ".txt", ".md", ".pdf", ".docx", 
       ".jpg", ".jpeg", ".png", ".gif", ".bmp"
@@ -979,7 +983,18 @@ public static class ConfigurationSources
       "node_modules", ".git", "bin", "obj", ".vs", ".vscode"
     ],
     "RetryAttempts": 3,
-    "RetryDelayMs": 1000
+    "RetryDelayMs": 1000,
+    "MaxParallelWorkers": 2,
+    "MaxParallelWorkersWhenIdle": 4,
+    "BatchWriteSize": 100,
+    "AggressiveIndexingWhenIdle": true,
+    "PauseWhenBatteryLow": true,
+    "QuietHours": {
+      "Enabled": false,
+      "Start": "09:00",
+      "End": "17:00",
+      "BehaviorDuringQuietHours": "ThrottleOnly"
+    }
   },
   "Events": {
     "RetentionDays": 30,
