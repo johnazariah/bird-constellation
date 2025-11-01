@@ -163,8 +163,8 @@ jobs:
           -p:IncludeNativeLibrariesForSelfExtract=true `
           -p:PublishTrimmed=false `
           -p:Version=${{ env.VERSION }} `
-          -p:AssemblyVersion=1.0.0.0 `
-          -p:FileVersion=${{ env.VERSION }} `
+          -p:AssemblyVersion=1.0.0.${{ github.run_number }} `
+          -p:FileVersion=1.0.0.${{ github.run_number }} `
           -p:InformationalVersion=${{ env.VERSION }}
 
     - name: Create service package structure
@@ -250,8 +250,8 @@ jobs:
           --configuration Release `
           --output ${{ env.ARTIFACTS_PATH }}/aspire `
           -p:Version=${{ env.VERSION }} `
-          -p:AssemblyVersion=1.0.0.0 `
-          -p:FileVersion=${{ env.VERSION }} `
+          -p:AssemblyVersion=1.0.0.${{ github.run_number }} `
+          -p:FileVersion=1.0.0.${{ github.run_number }} `
           -p:InformationalVersion=${{ env.VERSION }}
 
     - name: Upload Aspire artifacts
