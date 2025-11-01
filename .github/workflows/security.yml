@@ -1,0 +1,80 @@
+name: Security Scanning
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Weekly on Monday at 6 AM UTC
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Manual trigger
+
+env:
+  DOTNET_VERSION: '9.0.x'
+
+jobs:
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Run security audit
+      run: |
+        dotnet list package --vulnerable --include-transitive 2>&1 | Tee-Object -FilePath "vulnerability-report.txt"
+
+        # Check if vulnerabilities were found
+        $content = Get-Content "vulnerability-report.txt" -Raw
+        if ($content -match "has the following vulnerable packages") {
+          Write-Host "::error::Vulnerable packages detected!" -ForegroundColor Red
+          Get-Content "vulnerability-report.txt"
+          exit 1
+        } else {
+          Write-Host "✅ No vulnerable packages detected" -ForegroundColor Green
+        }
+
+    - name: Upload vulnerability report
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: vulnerability-report
+        path: vulnerability-report.txt
+        retention-days: 30
+
+  code-security-scan:
+    name: Code Security Analysis (CodeQL)
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: csharp
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Build for analysis
+      run: |
+        dotnet restore
+        dotnet build --configuration Release --no-restore
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:csharp"

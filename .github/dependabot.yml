@@ -1,0 +1,51 @@
+version: 2
+updates:
+  # .NET dependencies
+  - package-ecosystem: "nuget"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    groups:
+      microsoft-packages:
+        patterns:
+          - "Microsoft.*"
+        update-types:
+          - "minor"
+          - "patch"
+      aspire-packages:
+        patterns:
+          - "Aspire.*"
+        update-types:
+          - "minor"
+          - "patch"
+      serilog-packages:
+        patterns:
+          - "Serilog.*"
+        update-types:
+          - "minor"
+          - "patch"
+      test-packages:
+        patterns:
+          - "xunit*"
+          - "FluentAssertions"
+          - "Moq"
+          - "coverlet*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    commit-message:
+      prefix: "ci"
+      include: "scope"
