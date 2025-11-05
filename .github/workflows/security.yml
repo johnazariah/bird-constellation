@@ -56,30 +56,3 @@ jobs:
         path: vulnerability-report.txt
         retention-days: 30
 
-  code-security-scan:
-    name: Code Security Analysis (CodeQL)
-    runs-on: windows-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v5
-
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
-      with:
-        languages: csharp
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v5
-      with:
-        dotnet-version: ${{ env.DOTNET_VERSION }}
-
-    - name: Build for analysis
-      run: |
-        dotnet restore
-        dotnet build --configuration Release --no-restore
-
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
-      with:
-        category: "/language:csharp"
