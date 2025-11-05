@@ -23,7 +23,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
       with:
         fetch-depth: 0 # Full history for analysis
 
@@ -62,7 +62,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -98,7 +98,7 @@ jobs:
           -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
 
     - name: Upload test results
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       if: always()
       with:
         name: test-results-${{ env.ARTIFACT_NAME }}
@@ -106,7 +106,7 @@ jobs:
         retention-days: 30
 
     - name: Upload code coverage
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: code-coverage-${{ env.ARTIFACT_NAME }}
         path: TestResults/*/coverage.opencover.xml
@@ -120,7 +120,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -200,7 +200,7 @@ jobs:
         "@ | Out-File -FilePath "$packagePath/uninstall.bat" -Encoding ASCII
 
     - name: Upload service artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: owlet-service-${{ env.VERSION }}
         path: ${{ env.ARTIFACTS_PATH }}/service-package/
@@ -213,7 +213,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -255,7 +255,7 @@ jobs:
           -p:InformationalVersion=${{ env.VERSION }}
 
     - name: Upload Aspire artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: owlet-aspire-${{ env.VERSION }}
         path: ${{ env.ARTIFACTS_PATH }}/aspire/
