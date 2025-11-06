@@ -413,7 +413,7 @@ Create test document sets for validation:
 
 | Component | Requirement | Notes |
 |-----------|-------------|-------|
-| **RAM** | 16 GB | Owlet + Lumen + Cygnet |
+| **RAM** | 16 GB | Owlet + Lark + Cygnet |
 | **CPU** | Intel Core i7 / AMD Ryzen 7 | 6+ cores for parallel services |
 | **Disk** | 10 GB free | All services + shared data |
 

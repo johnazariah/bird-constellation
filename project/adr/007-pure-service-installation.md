@@ -12,7 +12,7 @@ During specification development, we designed a dual architecture approach with 
 
 1. **End Users**: Want simple document search that "just works" after installation
 2. **Developers/Power Users**: Want rich development experience and constellation capabilities
-3. **Constellation Users**: Want to run multiple services (Owlet + Lumen + Raven + etc.)
+3. **Constellation Users**: Want to run multiple services (Owlet + Lark + Raven + etc.)
 
 Initial consideration was to provide installation options or bundle both approaches in a single installer. However, this creates significant user experience and maintenance problems.
 
@@ -50,7 +50,7 @@ We will **ship the pure Windows Service as the default and only MSI installer**,
 **Capabilities**:
 - Rich Aspire development experience
 - Service discovery and orchestration
-- Integration with Lumen, Cygnet, Eaglet, Raven
+- Integration with Lark, Cygnet, Eaglet, Raven
 - PostgreSQL for multi-service scenarios
 - Full observability and debugging tools
 
@@ -103,7 +103,7 @@ We will **ship the pure Windows Service as the default and only MSI installer**,
 
 ### Phase 3: Constellation Distribution
 - Create "Constellation Pack" with Docker Compose or Aspire manifests
-- Document integration patterns for Lumen, Raven, etc.
+- Document integration patterns for Lark, Raven, etc.
 - Provide migration path from single service to constellation
 
 ## Success Criteria
@@ -134,7 +134,7 @@ We will **ship the pure Windows Service as the default and only MSI installer**,
 1. Clones repository or downloads constellation pack
 2. Runs `dotnet run --project src/Owlet.AppHost`
 3. Aspire Dashboard opens with rich service topology
-4. Adds Lumen service to AppHost configuration
+4. Adds Lark service to AppHost configuration
 5. Services discover each other automatically
 6. **Full constellation development experience**
 

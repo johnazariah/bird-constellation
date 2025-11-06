@@ -8,7 +8,7 @@
 
 ## Overview
 
-This epic elevates Owlet from a traditional document indexing service to an intelligent knowledge platform powered by AI. It introduces semantic search capabilities, intelligent document classification, image processing with metadata extraction, and the constellation protocol that enables ecosystem integration with future applications like Lumen and Cygnet.
+This epic elevates Owlet from a traditional document indexing service to an intelligent knowledge platform powered by AI. It introduces semantic search capabilities, intelligent document classification, image processing with metadata extraction, and the constellation protocol that enables ecosystem integration with future applications like Lark and Cygnet.
 
 The advanced features focus on leveraging local AI models through Ollama integration, providing semantic understanding of document content, and establishing the foundational APIs and protocols that enable the broader Owlet Constellation vision. This work differentiates Owlet from simple file search tools by providing intelligent content understanding and discovery.
 
@@ -200,7 +200,7 @@ public interface IContentExtractor
 - **E30: Production Hardening** - Requires stable, monitored service before adding AI complexity
 
 ### Blocks These Epics
-- **Future Constellation Applications:** Lumen, Cygnet, and other ecosystem services depend on constellation protocol
+- **Future Constellation Applications:** Lark, Cygnet, and other ecosystem services depend on constellation protocol
 
 ## Next Steps
 

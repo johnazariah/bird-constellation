@@ -11,7 +11,7 @@
 The **Bird Constellation** is an ecosystem of specialized, interoperable services that work together to create a powerful local-first AI productivity environment. Each "bird" handles a specific domain with excellence:
 
 - **🦉 Owlet** *(This Repository)* - The Librarian: Document indexing, search, and knowledge foundation
-- **💡 Lumen** - The Illuminator: AI-powered insights, analysis, and question answering
+- **💡 Lark** - The Illuminator: AI-powered insights, analysis, and question answering
 - **🦢 Cygnet** - The Orchestrator: Workflow automation and document processing pipelines
 - **🕊️ Dove** - The Messenger: Cross-service communication and event streaming
 
@@ -196,7 +196,7 @@ Owlet is designed as the foundation service for the Bird Constellation. Other se
 - **Capability Negotiation**: Dynamic feature discovery (`/constellation/capabilities`)
 - **Shared Knowledge**: All constellation services query Owlet for document knowledge
 
-Future constellation services (Lumen, Cygnet, Dove) will build upon Owlet's indexing and search capabilities, creating a cohesive local-first AI productivity ecosystem.
+Future constellation services (Lark, Cygnet, Dove) will build upon Owlet's indexing and search capabilities, creating a cohesive local-first AI productivity ecosystem.
 
 ---
 

@@ -11,7 +11,7 @@ Accepted
 During design discussions, we realized that while Owlet needs to be deployable as a Windows Service for production use, it also needs to support:
 
 - Local development with hot reload and debugging capabilities
-- Future integration with other Constellation services (Lumen, Cygnet, Eaglet, Raven)
+- Future integration with other Constellation services (Lark, Cygnet, Eaglet, Raven)
 - Built-in observability (logging, metrics, health checks, tracing)
 - Service discovery for inter-service communication
 - Consistent deployment patterns across development and production environments

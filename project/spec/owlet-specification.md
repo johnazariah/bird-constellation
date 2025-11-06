@@ -16,7 +16,7 @@ Owlet is a production-ready, local-first document indexing and search applicatio
 
 1. **Development-to-Production Consistency**: The same AppHost composition that works locally becomes your production deployment blueprint
 2. **Built-in Observability**: OpenTelemetry, health checks, and service discovery come automatically
-3. **Future-Proof Orchestration**: When you need to add Lumen, Cygnet, etc., they integrate seamlessly
+3. **Future-Proof Orchestration**: When you need to add Lark, Cygnet, etc., they integrate seamlessly
 4. **Flexible Deployment**: Aspire can deploy to containers, cloud services, or Windows Services
 5. **Simplified Configuration**: Service defaults handle logging, metrics, and configuration patterns
 
@@ -77,7 +77,7 @@ var owletService = builder.AddProject<Projects.Owlet_Service>("owlet-service")
     .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Environment.EnvironmentName);
 
 // Future constellation members auto-discover owlet-service
-var lumen = builder.AddProject<Projects.Lumen_Service>("lumen")
+var Lark = builder.AddProject<Projects.Lark_Service>("Lark")
     .WithReference(owletService);
 
 builder.Build().Run();
@@ -193,7 +193,7 @@ var database = builder.Environment.IsDevelopment()
 owletService.WithReference(database);
 
 // Future constellation members (commented for Phase 1)
-// var lumen = builder.AddProject<Projects.Lumen_Service>("lumen")
+// var Lark = builder.AddProject<Projects.Lark_Service>("Lark")
 //     .WithReference(owletService);
 // 
 // var cygnet = builder.AddProject<Projects.Cygnet_Service>("cygnet")
